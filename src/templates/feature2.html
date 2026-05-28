@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>下午上班 - 企業門戶系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #050b14 0%, #0d1b2a 100%);
+            --text-main: #f8f9fa;
+            --text-muted: #94a3b8;
+            --corp-blue: #0077b6;
+            --corp-teal: #00b4d8;
+            --corp-glow: rgba(0, 180, 216, 0.4);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --card-hover-border: rgba(0, 180, 216, 0.3);
+            --success: #06d6a0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient glowing blue background for office atmosphere */
+        .office-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 180, 216, 0.08) 0%, rgba(0, 180, 216, 0) 70%);
+            filter: blur(100px);
+            bottom: -150px;
+            right: -100px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 90%;
+            margin: 40px auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Navigation */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .corp-icon {
+            font-size: 24px;
+            animation: pulse-icon 2s infinite alternate;
+        }
+
+        @keyframes pulse-icon {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px var(--corp-teal)); }
+            100% { transform: scale(1.15); filter: drop-shadow(0 0 10px var(--corp-teal)); }
+        }
+
+        .page-header h1 {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, var(--corp-teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(-3px);
+        }
+
+        /* Portal Layout Grid */
+        .portal-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .portal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .card:hover {
+            border-color: var(--card-hover-border);
+            box-shadow: 0 12px 30px rgba(0, 180, 216, 0.08);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+            color: var(--corp-teal);
+        }
+
+        /* Company Profile list */
+        .profile-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .profile-item {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .profile-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .profile-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .profile-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-top: 5px;
+        }
+
+        /* Checkin/Punch-in section */
+        .checkin-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .punch-btn {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--corp-teal) 0%, var(--corp-blue) 100%);
+            color: white;
+            border: 4px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 30px var(--corp-glow);
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            outline: none;
+        }
+
+        .punch-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 35px var(--corp-glow);
+            border-color: rgba(255,255,255,0.25);
+        }
+
+        .punch-btn:active {
+            transform: scale(0.95);
+        }
+
+        .punch-btn.punched {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            box-shadow: 0 8px 30px rgba(6, 214, 160, 0.4);
+            cursor: default;
+            transform: none;
+        }
+
+        .bulletin-container {
+            background: rgba(0, 119, 182, 0.08);
+            border: 1px solid rgba(0, 180, 216, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .bulletin-title {
+            color: var(--corp-teal);
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .log-panel {
+            margin-top: 20px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .log-title {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .log-list {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 10px 15px;
+            max-height: 100px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            color: var(--success);
+            list-style: none;
+        }
+
+        .log-list li {
+            margin-bottom: 5px;
+            border-bottom: 1px dashed rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+        .log-list li:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 14px;
+            border-top: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="office-glow"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="logo-group">
+                <span class="corp-icon">🏢</span>
+                <h1>下午上班企業門戶</h1>
+            </div>
+            <a href="/" class="back-btn">← 返回首頁</a>
+        </header>
+
+        <!-- Portal Grid -->
+        <div class="portal-grid">
+            
+            <!-- Company Profile Card -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🏢 下午上班公司資訊</span>
+                </div>
+                <div class="profile-list">
+                    <div class="profile-item">
+                        <div class="profile-label">企業名稱 (Company Name)</div>
+                        <div class="profile-value">{{ company_info.name }}</div>
+                        <div class="profile-desc" style="color: var(--corp-teal); font-weight: 600;">{{ company_info.english_name }}</div>
+                    </div>
+                    
+                    <div class="profile-item">
+                        <div class="profile-label">企業精神與核心理念 (Motto)</div>
+                        <div class="profile-value" style="font-size: 15px;">{{ company_info.motto }}</div>
+                    </div>
+
+                    <div class="profile-item">
+                        <div class="profile-label">總部地址 (Headquarters Address)</div>
+                        <div class="profile-value" style="font-size: 14px; font-weight: 500;">{{ company_info.address }}</div>
+                    </div>
+
+                    <div class="profile-item">
+                        <div class="profile-label">下午班工作時間 (Work Shift)</div>
+                        <div class="profile-value" style="font-size: 15px; color: var(--success);">{{ company_info.shift_time }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Employee Checkin Panel Card -->
+            <div class="card">
+                <div class="card-title">
+                    <span>⏰ 員工下午上班簽到系統</span>
+                </div>
+                <div class="checkin-container">
+                    <button class="punch-btn" id="punch-button">
+                        <span id="punch-emoji">📍</span>
+                        <span id="punch-text">下午打卡</span>
+                    </button>
+                    
+                    <!-- Bulletin announcements -->
+                    <div class="bulletin-container">
+                        <div class="bulletin-title">📢 下午重要公告通知</div>
+                        <div>{{ company_info.afternoon_announcement }}</div>
+                    </div>
+
+                    <!-- Check-in log list -->
+                    <div class="log-panel">
+                        <div class="log-title">下午打卡成功日誌：</div>
+                        <ul class="log-list" id="log-list">
+                            <li style="color: var(--text-muted);">[系統] 等待員工上班打卡簽到...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 {{ company_info.name }} | 智慧化雲端企業辦公系統平台</p>
+    </footer>
+
+    <script>
+        const punchBtn = document.getElementById('punch-button');
+        const punchText = document.getElementById('punch-text');
+        const punchEmoji = document.getElementById('punch-emoji');
+        const logList = document.getElementById('log-list');
+        
+        let hasPunched = false;
+
+        punchBtn.addEventListener('click', () => {
+            if (hasPunched) return;
+            
+            hasPunched = true;
+            
+            // Add visual active success class
+            punchBtn.classList.add('punched');
+            punchEmoji.textContent = '✅';
+            punchText.textContent = '已簽到';
+            
+            // Log timestamp
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            
+            // Render nice audit logs
+            logList.innerHTML = ''; // Clear wait message
+            
+            const logItem = document.createElement('li');
+            logItem.innerHTML = `<span style="color: var(--corp-teal);">[成功]</span> 下午班簽到成功！時間：${timeString}`;
+            logList.appendChild(logItem);
+
+            const welcomeItem = document.createElement('li');
+            welcomeItem.innerHTML = `<span style="color: var(--success);">[提示]</span> 歡迎回到辦公室，祝您下午工作愉快、事事順心！`;
+            logList.appendChild(welcomeItem);
+            
+            // Play a micro browser sound or alert if wanted, let's just make it look stunning
+            punchBtn.style.animation = 'none';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask 19191 Developer Hub</title>
+    <!-- Importing Modern Outfit Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c1b 0%, #15102a 50%, #06020f 100%);
+            --primary: #9d4edd;
+            --primary-glow: rgba(157, 78, 221, 0.4);
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --accent-glow: rgba(76, 201, 240, 0.3);
+            --text-main: #f8f9fa;
+            --text-muted: #a2a2b5;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --card-hover-border: rgba(157, 78, 221, 0.3);
+            --success: #06d6a0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+        }
+
+        /* Beautiful glowing orbs in background */
+        .glow-orb {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(150px);
+            z-index: 0;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .orb-1 {
+            background: var(--primary);
+            top: -100px;
+            right: -100px;
+            animation: float 20s infinite alternate;
+        }
+        .orb-2 {
+            background: var(--accent);
+            bottom: -150px;
+            left: -150px;
+            animation: float 25s infinite alternate-reverse;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(50px) scale(1.1); }
+        }
+
+        /* Container Layout */
+        .wrapper {
+            max-width: 1200px;
+            width: 90%;
+            margin: 40px auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--success);
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(6, 214, 160, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(6, 214, 160, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(6, 214, 160, 0); }
+        }
+
+        header h1 {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .port-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        /* Hero Banner */
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+        }
+
+        .hero h2 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 30%, #b388ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Main Grid Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+            pointer-events: none;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--card-hover-border);
+            box-shadow: 0 20px 40px rgba(157, 78, 221, 0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(157, 78, 221, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 20px;
+            font-weight: 800;
+            border: 1px solid rgba(157, 78, 221, 0.2);
+        }
+
+        .card-accent .card-icon {
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--accent);
+            border-color: rgba(76, 201, 240, 0.2);
+        }
+
+        .card h3 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .info-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            color: var(--text-muted);
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* Console and Interactive Buttons */
+        .interactive-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px var(--primary-glow);
+            outline: none;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--primary-glow);
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .console-output {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            color: var(--accent);
+            min-height: 100px;
+            max-height: 150px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Footer styling */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 14px;
+            border-top: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            width: 100%;
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive refinements */
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 30px;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+
+    <div class="wrapper">
+        <!-- Navigation Header -->
+        <header>
+            <div class="logo-section">
+                <span class="status-dot"></span>
+                <h1>Flask 專案服務</h1>
+            </div>
+            <div class="port-badge">Port: {{ system_info.flask_port }}</div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <h2>Flask 應用已成功運行！</h2>
+            <p>程式碼已成功將業務邏輯 (src) 與測試代碼 (test) 進行結構化切割，建立起安全且易於擴充維護的 Python Web 專案基礎。</p>
+        </section>
+
+        <!-- Dashboard Grid -->
+        <section class="dashboard-grid">
+            
+            <!-- System Metrics Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">⚡</div>
+                    <h3>伺服器環境指標</h3>
+                </div>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">作業系統</span>
+                        <span class="info-value">{{ system_info.os }} ({{ system_info.os_release }})</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Python 版本</span>
+                        <span class="info-value">v{{ system_info.python_version }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">運行連接埠</span>
+                        <span class="info-value">{{ system_info.flask_port }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">伺服器目前時間</span>
+                        <span class="info-value">{{ system_info.server_time }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Architecture Card -->
+            <div class="card card-accent">
+                <div class="card-header">
+                    <div class="card-icon">📁</div>
+                    <h3>專案目錄架構</h3>
+                </div>
+                <div class="info-list">
+                    <div class="info-item">
+                        <span class="info-label">/src</span>
+                        <span class="info-value">核心開發程式碼</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">/test</span>
+                        <span class="info-value">Pytest 單元測試</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">run.py</span>
+                        <span class="info-value">系統啟動入口 (Port 19191)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">requirements.txt</span>
+                        <span class="info-value">Flask, pytest 等套件依賴</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live API Interaction Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🔌</div>
+                    <h3>Live API 互動面板</h3>
+                </div>
+                <div class="interactive-section">
+                    <button class="btn" id="btn-fetch">測試健康狀態 API (/api/health)</button>
+                    <div class="console-output" id="console-log">> 等待發送測試請求...</div>
+                </div>
+            </div>
+
+            <!-- New Features Card -->
+            <div class="card card-accent">
+                <div class="card-header">
+                    <div class="card-icon">⭐</div>
+                    <h3>新追加特色功能模組</h3>
+                </div>
+                <div class="interactive-section">
+                    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 5px; line-height: 1.4;">
+                        系統已動態串接兩大情境功能，包含早晨台股搓合盤與下午上班企業門戶：
+                    </p>
+                    <a href="/feature1" class="btn" style="text-decoration: none; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #0f0c1b; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">☀️ 早上看股票行情盤 (Feature 1)</a>
+                    <a href="/feature2" class="btn" style="text-decoration: none; background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%); color: #fff; box-shadow: 0 4px 15px rgba(0, 180, 216, 0.3);">🏢 下午上班企業簽到門戶 (Feature 2)</a>
+                </div>
+            </div>
+
+
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 Flask 專案範本 | 部署於 Port 19191 | 程式碼目錄已成功隔離</p>
+    </footer>
+
+    <script>
+        document.getElementById('btn-fetch').addEventListener('click', async () => {
+            const consoleLog = document.getElementById('console-log');
+            consoleLog.textContent = "> 正在發送 GET 請求至 /api/health ...\n";
+            consoleLog.style.color = "var(--accent)";
+            
+            try {
+                const startTime = performance.now();
+                const response = await fetch('/api/health');
+                const duration = (performance.now() - startTime).toFixed(1);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                consoleLog.textContent = `> 收到回覆 (${duration}ms):\n` + JSON.stringify(data, null, 2);
+                consoleLog.style.color = "var(--success)";
+            } catch (error) {
+                consoleLog.textContent = `> 請求失敗:\n${error.message}`;
+                consoleLog.style.color = "#ff4d4d";
+            }
+        });
+    </script>
+</body>
+</html>
