@@ -63,3 +63,48 @@ def test_directory_traversal_prevention(client):
     response = client.get("/feature2/../images/sample.png")
     assert response.status_code in (403, 404)
 
+def test_cpu_stress_endpoints(client):
+    """Test that CPU stress endpoints work correctly (start, stop, status)."""
+    # 1. Initially should be idle
+    status_response = client.get("/api/cpu/stress/status")
+    assert status_response.status_code == 200
+    status_data = status_response.get_json()
+    assert status_data["status"] == "idle"
+    assert status_data["active_cores"] == 0
+
+    try:
+        # 2. Start stress test with 1 core for 5 seconds
+        start_response = client.post(
+            "/api/cpu/stress/start",
+            json={"cores": 1, "duration": 5}
+        )
+        assert start_response.status_code == 200
+        start_data = start_response.get_json()
+        assert start_data["status"] == "success"
+        assert "details" in start_data
+        
+        # 3. Check status is now stressing
+        status_response = client.get("/api/cpu/stress/status")
+        assert status_response.status_code == 200
+        status_data = status_response.get_json()
+        assert status_data["status"] == "stressing"
+        assert status_data["active_cores"] == 1
+        assert status_data["requested_cores"] == 1
+        assert status_data["duration"] == 5
+
+        # 4. Stop stress test
+        stop_response = client.post("/api/cpu/stress/stop")
+        assert stop_response.status_code == 200
+        stop_data = stop_response.get_json()
+        assert stop_data["status"] == "success"
+
+        # 5. Check status is idle again
+        status_response = client.get("/api/cpu/stress/status")
+        status_data = status_response.get_json()
+        assert status_data["status"] == "idle"
+        assert status_data["active_cores"] == 0
+    finally:
+        # Cleanup processes in case of test failures
+        client.post("/api/cpu/stress/stop")
+
+

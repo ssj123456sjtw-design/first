@@ -81,6 +81,58 @@
                     <pre><code id="text-preview-output">File contents will appear here...</code></pre>
                 </div>
             </div>
+
+            <!-- Feature 4: CPU Stress Test -->
+            <div class="feature-card" id="cpu-stress-card">
+                <h3>Feature 4: CPU Stress Test</h3>
+                <p class="feature-desc">Safely stress multiple CPU cores with a non-blocking background stressor.</p>
+                
+                <div class="control-row">
+                    <div class="control-group">
+                        <label class="control-label" for="cpu-cores-select">Target Cores</label>
+                        <div class="select-wrapper">
+                            <select id="cpu-cores-select">
+                                <option value="1">1 Core</option>
+                                <option value="2" selected>2 Cores</option>
+                                <option value="4">4 Cores</option>
+                                <option value="8">8 Cores</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="cpu-duration-select">Duration</label>
+                        <div class="select-wrapper">
+                            <select id="cpu-duration-select">
+                                <option value="5">5 Seconds</option>
+                                <option value="10" selected>10 Seconds</option>
+                                <option value="15">15 Seconds</option>
+                                <option value="30">30 Seconds</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-container stress-btn-container">
+                    <button id="cpu-stress-btn" class="btn-stress-idle" type="button">
+                        <span class="btn-icon">⚡</span>
+                        <span id="cpu-btn-text">Start CPU Stress Test</span>
+                    </button>
+                </div>
+
+                <div class="cpu-progress-wrapper" id="cpu-progress-wrapper" style="display: none;">
+                    <div class="cpu-progress-header">
+                        <span class="cpu-status-label" id="cpu-status-text">Stressing CPU...</span>
+                        <span class="cpu-timer-label" id="cpu-timer-text">10.0s</span>
+                    </div>
+                    <div class="cpu-progress-bar-track">
+                        <div class="cpu-progress-bar-fill" id="cpu-progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="text-preview-container cpu-log-container">
+                    <pre><code id="cpu-log-output">[System Idle] Ready to trigger stress test...</code></pre>
+                </div>
+            </div>
         </section>
     </main>
 

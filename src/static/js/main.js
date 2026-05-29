@@ -102,4 +102,207 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Feature 4: CPU Stress Test Logic
+    const cpuStressCard = document.getElementById("cpu-stress-card");
+    const cpuStressBtn = document.getElementById("cpu-stress-btn");
+    const cpuBtnText = document.getElementById("cpu-btn-text");
+    const cpuCoresSelect = document.getElementById("cpu-cores-select");
+    const cpuDurationSelect = document.getElementById("cpu-duration-select");
+    const cpuProgressWrapper = document.getElementById("cpu-progress-wrapper");
+    const cpuStatusText = document.getElementById("cpu-status-text");
+    const cpuTimerText = document.getElementById("cpu-timer-text");
+    const cpuProgressFill = document.getElementById("cpu-progress-fill");
+    const cpuLogOutput = document.getElementById("cpu-log-output");
+
+    if (cpuStressBtn) {
+        let isStressing = false;
+        let pollInterval = null;
+        let countdownInterval = null;
+        let startStressTime = null;
+        let totalDuration = 10;
+
+        function getTimestamp() {
+            const now = new Date();
+            return now.toTimeString().split(' ')[0];
+        }
+
+        function log(message) {
+            const time = getTimestamp();
+            const currentLogs = cpuLogOutput.textContent;
+            if (currentLogs.startsWith("[System Idle]")) {
+                cpuLogOutput.textContent = `[${time}] ${message}`;
+            } else {
+                cpuLogOutput.textContent = `${currentLogs}\n[${time}] ${message}`;
+            }
+            // Auto-scroll to bottom of log
+            const logContainer = cpuLogOutput.closest('.cpu-log-container');
+            if (logContainer) {
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+        }
+
+        function setControlsDisabled(disabled) {
+            cpuCoresSelect.disabled = disabled;
+            cpuDurationSelect.disabled = disabled;
+        }
+
+        function resetUI() {
+            isStressing = false;
+            clearInterval(pollInterval);
+            clearInterval(countdownInterval);
+            pollInterval = null;
+            countdownInterval = null;
+
+            // Restore buttons and classes
+            cpuStressBtn.className = "btn-stress-idle";
+            cpuStressBtn.querySelector(".btn-icon").textContent = "⚡";
+            cpuBtnText.textContent = "Start CPU Stress Test";
+            cpuStressCard.classList.remove("stressing-active");
+            cpuProgressWrapper.style.display = "none";
+            cpuProgressFill.style.width = "0%";
+            
+            setControlsDisabled(false);
+        }
+
+        function enterStressingState(cores, duration, elapsed = 0) {
+            isStressing = true;
+            totalDuration = duration;
+            setControlsDisabled(true);
+
+            // Update UI components
+            cpuStressBtn.className = "btn-stressing";
+            cpuStressBtn.querySelector(".btn-icon").textContent = "⏹";
+            cpuBtnText.textContent = "Stop CPU Stress Test";
+            cpuStressCard.classList.add("stressing-active");
+            cpuProgressWrapper.style.display = "block";
+
+            // Initialize progress bar
+            const remaining = Math.max(0, duration - elapsed);
+            cpuTimerText.textContent = `${remaining.toFixed(1)}s`;
+            cpuProgressFill.style.width = `${(elapsed / duration) * 100}%`;
+
+            startStressTime = Date.now() - (elapsed * 1000);
+
+            // Fast, high-fidelity local timer countdown (updates every 100ms for smooth bar movement)
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                const now = Date.now();
+                const msElapsed = now - startStressTime;
+                const secElapsed = msElapsed / 1000;
+                const secRemaining = Math.max(0, totalDuration - secElapsed);
+
+                cpuTimerText.textContent = `${secRemaining.toFixed(1)}s`;
+                
+                const percentage = Math.min(100, (secElapsed / totalDuration) * 100);
+                cpuProgressFill.style.width = `${percentage}%`;
+
+                if (secRemaining <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 100);
+
+            // Server synchronizer polling (every 1.5 seconds)
+            clearInterval(pollInterval);
+            pollInterval = setInterval(syncStatus, 1500);
+        }
+
+        async function syncStatus() {
+            try {
+                const response = await fetch("/api/cpu/stress/status");
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status === "stressing") {
+                        // Sync our timer if it deviates too far
+                        const localElapsed = (Date.now() - startStressTime) / 1000;
+                        const serverElapsed = data.duration - data.remaining_time;
+                        if (Math.abs(localElapsed - serverElapsed) > 1.0) {
+                            startStressTime = Date.now() - (serverElapsed * 1000);
+                        }
+                    } else if (data.status === "idle" && isStressing) {
+                        log("Stress test duration completed.");
+                        log("System returning to idle.");
+                        resetUI();
+                    }
+                }
+            } catch (error) {
+                console.error("Error polling CPU stress status:", error);
+            }
+        }
+
+        // Action when button is clicked
+        cpuStressBtn.addEventListener("click", async () => {
+            if (isStressing) {
+                // STOP stress command
+                log("Requested stop. Terminating stress processes...");
+                cpuStressBtn.disabled = true;
+                try {
+                    const response = await fetch("/api/cpu/stress/stop", { method: "POST" });
+                    if (response.ok) {
+                        const data = await response.json();
+                        log("Stress test aborted by user.");
+                        log("All background workers terminated.");
+                    } else {
+                        log("Failed to stop stress test cleanly.");
+                    }
+                } catch (error) {
+                    log(`Error stopping stress test: ${error.message}`);
+                } finally {
+                    cpuStressBtn.disabled = false;
+                    resetUI();
+                }
+            } else {
+                // START stress command
+                const cores = parseInt(cpuCoresSelect.value);
+                const duration = parseInt(cpuDurationSelect.value);
+
+                log(`Requesting CPU stress test...`);
+                log(`Configured cores: ${cores}, duration: ${duration}s`);
+                cpuStressBtn.disabled = true;
+
+                try {
+                    const response = await fetch("/api/cpu/stress/start", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ cores, duration })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        log(`Successfully spawned ${cores} backend stress workers.`);
+                        log(`Warning: System CPU utilization will now rise!`);
+                        enterStressingState(cores, duration);
+                    } else {
+                        const errText = await response.text();
+                        log(`Error starting stress test: ${errText}`);
+                    }
+                } catch (error) {
+                    log(`Network Error: ${error.message}`);
+                } finally {
+                    cpuStressBtn.disabled = false;
+                }
+            }
+        });
+
+        // Proactive initialization check on page load
+        // This recovers UI state if a stress test is currently running on refresh!
+        async function checkInitialState() {
+            try {
+                const response = await fetch("/api/cpu/stress/status");
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status === "stressing") {
+                        const elapsed = data.duration - data.remaining_time;
+                        log(`Reconnected to active stress session (${data.requested_cores} cores, ${data.remaining_time}s remaining).`);
+                        enterStressingState(data.requested_cores, data.duration, elapsed);
+                    }
+                }
+            } catch (e) {
+                console.error("Initial CPU state check failed:", e);
+            }
+        }
+
+        // Trigger state recovery check
+        checkInitialState();
+    }
 });
