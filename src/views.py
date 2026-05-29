@@ -101,20 +101,6 @@ stressor = CPUStressor()
 IMAGE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "images"))
 TEXT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data", "texts"))
 
-@bp.route("/")
-def index():
-    """Render the landing page of the Flask application."""
-    return render_template("index.html")
-
-@bp.route("/api/health")
-def health():
-    """Health check endpoint for monitoring."""
-    return jsonify({
-        "status": "healthy",
-        "service": "Flask Demo App",
-        "port": 19191,
-        "version": "1.0.0"
-    })
 
 @bp.route("/feature1/<picture_name>")
 def feature1(picture_name):

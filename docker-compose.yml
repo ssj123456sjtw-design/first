@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ckc_101_app:latest
+    container_name: ckc_101_container
+    ports:
+      - "19191:19191"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_RUN_HOST=0.0.0.0
+      - PORT=19191
+      - SECRET_KEY=prod-secret-key-change-me-in-production
+    restart: unless-stopped
