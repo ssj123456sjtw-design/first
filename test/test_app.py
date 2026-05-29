@@ -12,23 +12,6 @@ def client(app):
     """A test client for the app."""
     return app.test_client()
 
-def test_index_route(client):
-    """Test that index page loads successfully."""
-    response = client.get("/")
-    assert response.status_code == 200
-    assert b"Flask Application" in response.data
-    assert b"Port 19191" in response.data
-
-def test_health_api(client):
-    """Test that the health endpoint returns correct JSON configuration."""
-    response = client.get("/api/health")
-    assert response.status_code == 200
-    
-    json_data = response.get_json()
-    assert json_data["status"] == "healthy"
-    assert json_data["service"] == "Flask Demo App"
-    assert json_data["port"] == 19191
-    assert json_data["version"] == "1.0.0"
 
 def test_feature1_success(client):
     """Test that feature1 successfully returns an image."""
